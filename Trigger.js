@@ -1,7 +1,9 @@
-class MuCirculo {
+class Trigger {
 
-  constructor(n,rad,ctx,freq){
+  constructor(n,rad,ctx,cty,freq,sound){
     this.doPlay;
+    this.sound = sound;
+    this.sample;
     this.posA = [];
     this.phA = [];
     this.phA_p = [];
@@ -26,12 +28,20 @@ class MuCirculo {
 
     this.t = millis()/1000;
     this.ctx = ctx;
-    this.ct = createVector(ctx,height/2);
+    this.ct = createVector(ctx,cty);
     this.rad = rad;
     this.freq = freq;
 
-    this.carr = new p5.Oscillator('triangle');
-    this.modu = new p5.Oscillator('triangle');
+    if (this.sound == 0) {
+      this.sample = loadSound('media/kik.mp3');
+    } else if (this.sound == 1){
+      this.sample = loadSound('media/snr.mp3');
+    } else if (this.sound == 2){
+      this.sample = loadSound('media/ah.mp3');
+    } else if (this.sound == 3){
+      this.sample = loadSound('media/zap.mp3');
+    }
+
     this.env = new p5.Envelope(this.t1, this.l1, this.t2, this.l2);
     this.env2 = new p5.Envelope();
     this.comp = new p5.Compressor();
@@ -68,32 +78,14 @@ class MuCirculo {
         this.g = random(0,255);
         this.b = random(0,255);
 
-        this.modu.freq(17);
-        this.modu.amp(0.6); //deltaF
+        this.sample.play();
 
-        this.carr.amp(0.5);
-        this.modu.disconnect();
-        this.carr.freq((200-(this.n*70))*(2**((i+1)/this.n))+600);
-        this.carr.freq(this.modu);
-        this.modu.start();
-        this.carr.start();
 
-        this.env2.setADSR(this.attackTime, this.decayTime, this.susPercent, this.releaseTime);
-
-        //this.modu.amp(this.env2);
-        //this.carr.amp(this.env2);
-        this.env2.play(this.modu);
-        this.env2.play(this.carr);
-
-        this.delay.process(this.carr, 0.12, .3, 2300);
-        this.delay.process(this.modu, 0.24, .6, 4300);
-
-        this.comp.process(this.modu, .03, 30, 12  , -12, .9);
-        this.comp.process(this.carr, .03, 30, 12  , -12, .9);
+        this.delay.process(this.sample, 0.12, .3, 2300);
+        this.comp.process(this.sample, .03, 30, 12  , -24, .9);
 
       } else {
-        this.modu.stop(0.5);
-        this.carr.stop(0.5);
+        this.sample.stop(0.5);
       }
 
     }
